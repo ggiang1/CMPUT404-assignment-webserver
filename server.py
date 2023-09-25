@@ -71,7 +71,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print("HTTP Version:", http_version)
         
         # print("TESTING 3", http_method, http_path)
-        
+
         if (http_method == 'GET'):
             # Do Something
             # print("")
@@ -165,7 +165,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
             status_code = b"HTTP/1.1 405 Method Not Allowed\n" # b is the same as doing encode("utf-8")
             self.request.sendall(status_code)
             pass
-
 
     
 
