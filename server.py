@@ -41,7 +41,6 @@ mimes_dict = {".html": "text/html", ".css": "text/css"}
 
 class MyWebServer(socketserver.BaseRequestHandler):
   
-    
     # path = "base.css"
     # file_extension = os.path.splitext(path)[1] # splitext splits it into a pair of root and extension
     # print(file_extension)
@@ -56,7 +55,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         http_method = ''
         http_path = ''
 
-        if (self.data != b''):
+        if (self.data != b''): # Not sure if I should be ignoring this or not
             print(True)
             data_list = self.data.decode('utf-8').split('\r\n')
 
@@ -72,8 +71,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print("HTTP Version:", http_version)
         
         # print("TESTING 3", http_method, http_path)
-        # os.path.join(dire)
-        # os.path.isfile((directory + http_path))
+        
         if (http_method == 'GET'):
             # Do Something
             # print("")
