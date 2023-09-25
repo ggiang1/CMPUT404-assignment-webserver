@@ -149,7 +149,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     #         self.request.sendall(response)
                         
 
-                if (not os.path.isfile(path + "/index.html")):
+                if ('index.html' not in files_in_dir_list):
                     print("Directory Found, File Not found")
                     status_code = b"HTTP/1.1 404 Not FOUND!\n"
                     self.request.sendall(status_code)
