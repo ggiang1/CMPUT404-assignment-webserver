@@ -63,10 +63,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print ("TESTING", data_list)
             # print("TESTING 2", data_list[0].split(' '))
 
-            http_method = data_list[0].split(' ')[0]
-            # print(data_list[0].split(' '))
             print(data_list[0])
-            http_path = data_list[0].split(' ')[1]
+            http_method = data_list[0].split(' ')[0] # HTTP Method
+    
+            http_path = data_list[0].split(' ')[1] # HTTP Path
+
+            http_version = data_list[0].split(' ')[2]
+            # print("HTTP Version:", http_version)
         
         # print("TESTING 3", http_method, http_path)
         # os.path.join(dire)
@@ -86,7 +89,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
             print("Directory", os.path.isdir(directory))
             print("File Exists", os.path.isfile(path))
             print("path is a directory", os.path.isdir(path))
-            # print("")
             
             file_extension = os.path.splitext(http_path)[1]
 
@@ -163,8 +165,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         else: # 405 error
             status_code = b"HTTP/1.1 405 Method Not Allowed\n" # b is the same as doing encode("utf-8")
-
-            
             self.request.sendall(status_code)
             pass
 
