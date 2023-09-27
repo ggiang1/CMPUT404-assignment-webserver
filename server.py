@@ -50,6 +50,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
     def handle(self):
         self.data = self.request.recv(1024).strip()
+        print("")
         print ("Got a request of: %s\n" % self.data)
         # self.request.sendall(bytearray("OK",'utf-8'))
         
@@ -166,31 +167,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
                         self.request.sendall(status_code)
 
                 elif (not path.endswith("/")):
-                    fixed_path = os.path.normpath(http_path) + "/" 
-                    # fixed_path = path + "/" 
+                    fixed_path = http_path + "/"
+                    # fixed_path = path + "/"
+                    print("Fixed Path", fixed_path)
 
-                    if ('index.html' in files_in_dir_list):
-                        print("INDEX EXISTS & REDIRECTING")
-
-                        new_file_path = fixed_path + '/index.html'
-
-                        with open(new_file_path, "rb") as file:
-                            response_data = file.read()
-
-                        status_code = b"HTTP/1.1 301 Moved Permanently\n"
-                        location = "Location: " + fixed_path + '\n'
-                        mime_type = "text/html"
-                        content_type = (f"Content-Type: {mime_type}\n") + '\n'
-                        
-                        response = status_code + location.encode('utf-8') + (content_type).encode('utf-8') + response_data
-                        # print(response)
-                        self.request.sendall(response)
-             
-
-                    if ('index.html' not in files_in_dir_list):
-                        print("Directory Found, File Not found")
-                        status_code = b"HTTP/1.1 404 Not FOUND!\n"
-                        self.request.sendall(status_code)
+                    status_code = b"HTTP/1.1 301 Moved Permanently\n"
+                    location = "Location: " + fixed_path + "\n"
+                    response = status_code + location.encode('utf-8')
+                    self.request.sendall(response)
 
 
             else:
