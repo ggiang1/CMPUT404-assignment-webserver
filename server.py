@@ -29,6 +29,7 @@ import os
 # try: curl -v -X GET http://127.0.0.1:8080/base.css
 # try: curl -v -X GET http://127.0.0.1:8080/do-not-implement-this-page-it-is-not-found
 # curl -v -X GET http://127.0.0.1:8080/../../../../../../../../../../../../etc/group
+# curl -v -X GET http://127.0.0.1:8080/deep
 
 # try: curl -v -X GET http://127.0.0.1:8080/hardcode/index.html
 
@@ -62,12 +63,16 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print ("TESTING", data_list)
             # print("TESTING 2", data_list[0].split(' '))
 
-            print(data_list[0])
-            http_method = data_list[0].split(' ')[0] # HTTP Method
+            print("Data_list", data_list[0])
+            print("Data_list", data_list[0].split())
+            print("HTTP Method", data_list[0].split()[0])
+            print("HTTP Path", data_list[0].split()[1])
+            print("HTTP Version", data_list[0].split()[2])
+            http_method = data_list[0].split()[0] # HTTP Method
     
-            http_path = data_list[0].split(' ')[1] # HTTP Path
+            http_path = data_list[0].split()[1] # HTTP Path
 
-            http_version = data_list[0].split(' ')[2]
+            http_version = data_list[0].split()[2]
             # print("HTTP Version:", http_version)
         
         # print("TESTING 3", http_method, http_path)
@@ -78,10 +83,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
             
             # print("GET")
             # directory = "./www"
-            http_path = os.path.normpath(http_path)
-            path = directory + http_path
+            # http_path = os.path.normpath(http_path)
+            path = directory + os.path.normpath(http_path)
 
-            print("HTTP Path", http_path)
+            print("HTTP Path normalized", http_path)
 
             print("File_Path", path)
             print("Directory", os.path.isdir(directory))
@@ -106,7 +111,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 content_type = (f"Content-Type: {mime_type}\n") + '\n'
 
                 response = status_code + (content_type).encode('utf-8') + response_data
-                print(response)
+                # print(response)
                 self.request.sendall(response)
             
             elif(os.path.isdir(path)): # If this is true then it is a directory
@@ -116,43 +121,76 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
                 files_in_dir_list = os.listdir(path)
                 print(files_in_dir_list)
+                print("HTTP PATHHH", http_path)
 
-                if ('index.html' in files_in_dir_list):
-                    print("INDEX EXISTS")
+                if(http_path.endswith("/")): # readd the back slash incase the actual path had it because normalizing path gets rid of it
+                    path = path + "/"
 
-                    new_file_path = path + '/index.html'
+                if path.endswith("/"): # Double check if this is a good way to do it.
 
-                    with open(new_file_path, "rb") as file:
-                        response_data = file.read()
+                    if ('index.html' in files_in_dir_list):
+                        print("INDEX EXISTS")
 
-                    status_code = b"HTTP/1.1 200 OK\n"
-                    mime_type = "text/html"
-                    content_type = (f"Content-Type: {mime_type}\n") + '\n'
-                    
-                    response = status_code + (content_type).encode('utf-8') + response_data
-                    self.request.sendall(response)
+                        new_file_path = path + '/index.html'
 
-                    # for file in files_in_dir_list: # Grab the css file corresponding with the html
-                    #     if (os.path.splitext(file)[1] == '.css'):
-                    #         print("CSS exists")
-                    #         new_file_path2 = path + '/' + file
+                        with open(new_file_path, "rb") as file:
+                            response_data = file.read()
 
-                    #         with open(new_file_path2, "rb") as file:
-                    #             response_data = file.read()
-
-                    #         response_data = response_data.decode('utf-8') + '\r\n'
-                    #         status_code = b"HTTP/1.1 200 OK \r\n"
-                    #         mime_type = "text/css"
-                    #         content_type = (f"Content-Type: {mime_type}\r\n")
-                            
-                    #         response = status_code + (content_type).encode('utf-8') + response_data.encode('utf-8')
-                    #         self.request.sendall(response)
+                        status_code = b"HTTP/1.1 200 OK\n"
+                        mime_type = "text/html"
+                        content_type = (f"Content-Type: {mime_type}\n") + '\n'
                         
+                        response = status_code + (content_type).encode('utf-8') + response_data
+                        self.request.sendall(response)
 
-                if ('index.html' not in files_in_dir_list):
-                    print("Directory Found, File Not found")
-                    status_code = b"HTTP/1.1 404 Not FOUND!\n"
-                    self.request.sendall(status_code)
+                        # for file in files_in_dir_list: # Grab the css file corresponding with the html
+                        #     if (os.path.splitext(file)[1] == '.css'):
+                        #         print("CSS exists")
+                        #         new_file_path2 = path + '/' + file
+
+                        #         with open(new_file_path2, "rb") as file:
+                        #             response_data = file.read()
+
+                        #         response_data = response_data.decode('utf-8') + '\r\n'
+                        #         status_code = b"HTTP/1.1 200 OK \r\n"
+                        #         mime_type = "text/css"
+                        #         content_type = (f"Content-Type: {mime_type}\r\n")
+                                
+                        #         response = status_code + (content_type).encode('utf-8') + response_data.encode('utf-8')
+                        #         self.request.sendall(response)
+                            
+
+                    if ('index.html' not in files_in_dir_list):
+                        print("Directory Found, File Not found")
+                        status_code = b"HTTP/1.1 404 Not FOUND!\n"
+                        self.request.sendall(status_code)
+
+                elif (not path.endswith("/")):
+                    fixed_path = os.path.normpath(http_path) + "/" 
+                    # fixed_path = path + "/" 
+
+                    if ('index.html' in files_in_dir_list):
+                        print("INDEX EXISTS & REDIRECTING")
+
+                        new_file_path = fixed_path + '/index.html'
+
+                        with open(new_file_path, "rb") as file:
+                            response_data = file.read()
+
+                        status_code = b"HTTP/1.1 301 Moved Permanently\n"
+                        location = "Location: " + fixed_path + '\n'
+                        mime_type = "text/html"
+                        content_type = (f"Content-Type: {mime_type}\n") + '\n'
+                        
+                        response = status_code + location.encode('utf-8') + (content_type).encode('utf-8') + response_data
+                        # print(response)
+                        self.request.sendall(response)
+             
+
+                    if ('index.html' not in files_in_dir_list):
+                        print("Directory Found, File Not found")
+                        status_code = b"HTTP/1.1 404 Not FOUND!\n"
+                        self.request.sendall(status_code)
 
 
             else:
