@@ -106,10 +106,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 with open(path, "rb") as file:
                     response_data = file.read()
                 
-                status_code = b"HTTP/1.1 200 OK\n"
+                status_code = b"HTTP/1.1 200 OK\r\n"
                 mime_type = mimes_dict[file_extension]
                 
-                content_type = (f"Content-Type: {mime_type}\n") + '\n'
+                content_type = (f"Content-Type: {mime_type}\r\n") + '\r\n'
 
                 response = status_code + (content_type).encode('utf-8') + response_data
                 # print(response)
@@ -124,7 +124,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 print(files_in_dir_list)
                 print("HTTP PATHHH", http_path)
 
-                if(http_path.endswith("/")): # readd the back slash incase the actual path had it because normalizing path gets rid of it
+                if(http_path.endswith("/")): # re add the back slash incase the actual path had it because normalizing path gets rid of it
                     path = path + "/"
 
                 if path.endswith("/"): # Double check if this is a good way to do it.
@@ -137,33 +137,16 @@ class MyWebServer(socketserver.BaseRequestHandler):
                         with open(new_file_path, "rb") as file:
                             response_data = file.read()
 
-                        status_code = b"HTTP/1.1 200 OK\n"
+                        status_code = b"HTTP/1.1 200 OK\r\n"
                         mime_type = "text/html"
-                        content_type = (f"Content-Type: {mime_type}\n") + '\n'
+                        content_type = (f"Content-Type: {mime_type}\r\n") + '\r\n'
                         
                         response = status_code + (content_type).encode('utf-8') + response_data
                         self.request.sendall(response)
-
-                        # for file in files_in_dir_list: # Grab the css file corresponding with the html
-                        #     if (os.path.splitext(file)[1] == '.css'):
-                        #         print("CSS exists")
-                        #         new_file_path2 = path + '/' + file
-
-                        #         with open(new_file_path2, "rb") as file:
-                        #             response_data = file.read()
-
-                        #         response_data = response_data.decode('utf-8') + '\r\n'
-                        #         status_code = b"HTTP/1.1 200 OK \r\n"
-                        #         mime_type = "text/css"
-                        #         content_type = (f"Content-Type: {mime_type}\r\n")
-                                
-                        #         response = status_code + (content_type).encode('utf-8') + response_data.encode('utf-8')
-                        #         self.request.sendall(response)
                             
-
                     if ('index.html' not in files_in_dir_list):
                         print("Directory Found, File Not found")
-                        status_code = b"HTTP/1.1 404 Not FOUND!\n"
+                        status_code = b"HTTP/1.1 404 Not FOUND!\r\n"
                         self.request.sendall(status_code)
 
                 elif (not path.endswith("/")):
@@ -171,21 +154,34 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     # fixed_path = path + "/"
                     print("Fixed Path", fixed_path)
 
-                    status_code = b"HTTP/1.1 301 Moved Permanently\n"
-                    location = "Location: " + fixed_path + "\n"
+                    status_code = b"HTTP/1.1 301 Moved Permanently\r\n"
+                    location = "Location: " + fixed_path + "\r\n"
                     response = status_code + location.encode('utf-8')
                     self.request.sendall(response)
 
 
             else:
                 print("Not found")
-                status_code = b"HTTP/1.1 404 Not FOUND!\n"
-                self.request.sendall(status_code)
+            
+                error404 = directory + "/404.html"
+                with open(error404, "rb") as file:
+                    response_data = file.read()
+
+                status_code = b"HTTP/1.1 404 Not FOUND!\r\n"
+                content_type = "Content-Type: text/html\r\n" + "\r\n"
+                response = status_code + content_type.encode('utf-8') + response_data
+                # print(response)
+                self.request.sendall(response)
 
 
         else: # 405 error
-            status_code = b"HTTP/1.1 405 Method Not Allowed\n" # b is the same as doing encode("utf-8")
-            self.request.sendall(status_code)
+            
+            response_data = b"Content: Only GET Methods are allowed.\r\n"
+            status_code = b"HTTP/1.1 405 Method Not Allowed\r\n" # b is the same as doing encode("utf-8")
+            content_type = b"Content-Type: text/plain\r\n"
+
+            response = status_code + content_type + response_data
+            self.request.sendall(response)
             pass
 
     
