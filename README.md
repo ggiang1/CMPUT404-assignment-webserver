@@ -35,3 +35,9 @@ Sources:
 * https://docs.python.org/2/library/socketserver.html#socketserver-tcpserver-example
 * https://www.geeksforgeeks.org/python-os-path-normpath-method/
 * https://www.learnpython.org/en/String_Formatting
+
+Please Note:
+    When running bash runner.sh, sometimes I get a random connection reset error:
+        ConnectionResetError: [Errno 54] Connection reset by peer
+    however, it is not a client error and just a server error. Rerunning it usually 
+    gives no errors.
