@@ -38,6 +38,6 @@ Sources:
 
 Please Note:
     When running bash runner.sh, sometimes I get a random connection reset error:
-        ConnectionResetError: [Errno 54] Connection reset by peer
+        ConnectionResetError: [Errno 54] Connection reset by peer,
     however, it is not a client error and just a server error. Rerunning it usually 
     gives no errors.
