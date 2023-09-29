@@ -137,7 +137,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             response = status_code + close_conn + content_type + response_data 
             self.request.sendall(response)
-            pass
+            
 
     
 
