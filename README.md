@@ -25,7 +25,7 @@ Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
 
-Consulted with Kai Luedemann
+Consulted with Kai Luedemann, Jack Geiger
 
 https://docs.python.org/3/library/os.html
 https://docs.python.org/2/library/socketserver.html#socketserver-tcpserver-example
