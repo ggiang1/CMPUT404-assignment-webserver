@@ -42,15 +42,8 @@ mimes_dict = {".html": "text/html", ".css": "text/css"}
 
 class MyWebServer(socketserver.BaseRequestHandler):
   
-    # path = "base.css"
-    # file_extension = os.path.splitext(path)[1] # splitext splits it into a pair of root and extension
-    # print(file_extension)
-    # print(os.path.splitext(path)[0])
-    # print(mimes_dict.get(file_extension))
-
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print("")
         print ("Got a request of: %s\n" % self.data)
         # self.request.sendall(bytearray("OK",'utf-8'))
         
@@ -58,44 +51,20 @@ class MyWebServer(socketserver.BaseRequestHandler):
         http_path = ''
 
         if (self.data != b''): # Not sure if I should be ignoring this or not
-            print(True)
             data_list = self.data.decode('utf-8').split('\r\n')
 
-            # print ("TESTING", data_list)
-            # print("TESTING 2", data_list[0].split(' '))
-
-            print("Data_list", data_list[0])
-            print("Data_list", data_list[0].split())
-            print("HTTP Method", data_list[0].split()[0])
-            print("HTTP Path", data_list[0].split()[1])
-            print("HTTP Version", data_list[0].split()[2])
             http_method = data_list[0].split()[0] # HTTP Method
     
             http_path = data_list[0].split()[1] # HTTP Path
 
             http_version = data_list[0].split()[2]
-            # print("HTTP Version:", http_version)
-        
-        # print("TESTING 3", http_method, http_path)
 
         if (http_method == 'GET'):
             path = directory + os.path.normpath(http_path)
-
-            print("HTTP Path normalized", http_path)
-
-            print("File_Path", path)
-            print("Directory", os.path.isdir(directory))
-            print("File Exists", os.path.isfile(path))
-            print("path is a directory", os.path.isdir(path))
-            
+          
             file_extension = os.path.splitext(http_path)[1]
 
-            print(file_extension)
-            print(mimes_dict.get(file_extension))
-
-            
             if (os.path.isfile(path)): # If this is true then it is a file
-                print("File")
 
                 with open(path, "rb") as file:
                     response_data = file.read()
@@ -106,17 +75,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 content_type = (f"Content-Type: {mime_type}\r\n") + '\r\n'
                 close_conn = b"Connection: close\r\n"
                 response = status_code + close_conn + (content_type).encode('utf-8') + response_data
-                # print(response)
                 self.request.sendall(response)
             
             elif(os.path.isdir(path)): # If this is true then it is a directory
-                print("Directory/Root")
-                print("INDEX EXISTS", os.path.isfile(path + "index.html"))
-                print(path + "index.html")
-
                 files_in_dir_list = os.listdir(path)
-                print(files_in_dir_list)
-                print("HTTP PATHHH", http_path)
 
                 if(http_path.endswith("/")): # re add the back slash incase the actual path had it because normalizing path gets rid of it
                     path = path + "/"
@@ -124,7 +86,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 if path.endswith("/"): # Double check if this is a good way to do it.
 
                     if ('index.html' in files_in_dir_list):
-                        print("INDEX EXISTS")
 
                         new_file_path = path + '/index.html'
 
@@ -139,15 +100,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
                         self.request.sendall(response)
                             
                     if ('index.html' not in files_in_dir_list):
-                        print("Directory Found, File Not found")
                         status_code = b"HTTP/1.1 404 Not FOUND!\r\n"
                         self.request.sendall(status_code)
 
                 elif (not path.endswith("/")):
                     fixed_path = http_path + "/"
-                    # fixed_path = path + "/"
-                    print("Fixed Path", fixed_path)
-                    print("REDIRECTING")
 
                     status_code = b"HTTP/1.1 301 Moved Permanently\r\n"
                     location = "Location: " + fixed_path + "\r\n"
@@ -169,7 +126,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 close_conn = b"Connection: close\r\n"
 
                 response = status_code + close_conn + content_type.encode('utf-8')  + response_data
-                print(response)
                 self.request.sendall(response)
 
 
