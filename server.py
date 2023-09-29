@@ -110,8 +110,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 mime_type = mimes_dict[file_extension]
                 
                 content_type = (f"Content-Type: {mime_type}\r\n") + '\r\n'
-
-                response = status_code + (content_type).encode('utf-8') + response_data
+                close_conn = b"Connection: close\r\n"
+                response = status_code + close_conn + (content_type).encode('utf-8') + response_data
                 # print(response)
                 self.request.sendall(response)
             
@@ -140,8 +140,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
                         status_code = b"HTTP/1.1 200 OK\r\n"
                         mime_type = "text/html"
                         content_type = (f"Content-Type: {mime_type}\r\n") + '\r\n'
-                        
-                        response = status_code + (content_type).encode('utf-8') + response_data
+                        close_conn = b"Connection: close\r\n"
+                        response = status_code + close_conn + (content_type).encode('utf-8') + response_data 
                         self.request.sendall(response)
                             
                     if ('index.html' not in files_in_dir_list):
@@ -153,24 +153,29 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     fixed_path = http_path + "/"
                     # fixed_path = path + "/"
                     print("Fixed Path", fixed_path)
+                    print("REDIRECTING")
 
                     status_code = b"HTTP/1.1 301 Moved Permanently\r\n"
                     location = "Location: " + fixed_path + "\r\n"
-                    response = status_code + location.encode('utf-8')
+
+                    close_conn = b"Connection: close\r\n"
+
+                    response = status_code + location.encode('utf-8') + close_conn
                     self.request.sendall(response)
 
 
-            else:
-                print("Not found")
-            
+            else: # 404 Error
                 error404 = directory + "/404.html"
                 with open(error404, "rb") as file:
                     response_data = file.read()
 
                 status_code = b"HTTP/1.1 404 Not FOUND!\r\n"
                 content_type = "Content-Type: text/html\r\n" + "\r\n"
-                response = status_code + content_type.encode('utf-8') + response_data
-                # print(response)
+
+                close_conn = b"Connection: close\r\n"
+
+                response = status_code + close_conn + content_type.encode('utf-8')  + response_data
+                print(response)
                 self.request.sendall(response)
 
 
@@ -179,8 +184,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
             response_data = b"Content: Only GET Methods are allowed.\r\n"
             status_code = b"HTTP/1.1 405 Method Not Allowed\r\n" # b is the same as doing encode("utf-8")
             content_type = b"Content-Type: text/plain\r\n"
+            close_conn = b"Connection: close\r\n"
 
-            response = status_code + content_type + response_data
+            response = status_code + close_conn + content_type + response_data 
             self.request.sendall(response)
             pass
 
