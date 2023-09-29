@@ -79,12 +79,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # print("TESTING 3", http_method, http_path)
 
         if (http_method == 'GET'):
-            # Do Something
-            # print("")
-            
-            # print("GET")
-            # directory = "./www"
-            # http_path = os.path.normpath(http_path)
             path = directory + os.path.normpath(http_path)
 
             print("HTTP Path normalized", http_path)
