@@ -130,7 +130,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
 
         else: # 405 error
-            
             response_data = b"Content: Only GET Methods are allowed.\r\n"
             status_code = b"HTTP/1.1 405 Method Not Allowed\r\n" # b is the same as doing encode("utf-8")
             content_type = b"Content-Type: text/plain\r\n"
