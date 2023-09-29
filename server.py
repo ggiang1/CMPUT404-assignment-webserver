@@ -44,7 +44,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
   
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
+        # print ("Got a request of: %s\n" % self.data)
         # self.request.sendall(bytearray("OK",'utf-8'))
         
         http_method = ''
