@@ -37,7 +37,7 @@ Sources:
 * https://www.learnpython.org/en/String_Formatting
 
 Please Note:
-    When running bash runner.sh, sometimes I get a random connection reset error:
+    When running bash runner.sh, sometimes I get a random connection reset error on mac but not the lab machines:
         ConnectionResetError: [Errno 54] Connection reset by peer,
     however, it is not a client error and just a server error. Rerunning it usually 
-    gives no errors.
+    gives no errors if it does occur.
