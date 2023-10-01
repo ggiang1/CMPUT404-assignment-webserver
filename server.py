@@ -187,7 +187,7 @@ def norm_path(path):
         if part == '..':
             # Do nothing
             pass
-        elif (part != '') and part != '.':
+        elif (part != '') and part != '.': # append the actual path not the ..
             path_items.append(part)
     # print(path)
     normalized_path = '/'.join(path_items)
