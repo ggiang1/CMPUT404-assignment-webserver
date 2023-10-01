@@ -52,22 +52,49 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         if (self.data != b''): # Not sure if I should be ignoring this or not
             data_list = self.data.decode('utf-8').split('\r\n')
-
+            print(data_list)
             http_method = data_list[0].split()[0] # HTTP Method
-    
+        
             http_path = data_list[0].split()[1] # HTTP Path
+
+            print("Http Path", http_path)
 
             http_version = data_list[0].split()[2]
 
         if (http_method == 'GET'):
-            path = directory + os.path.normpath(http_path)
-          
-            file_extension = os.path.splitext(http_path)[1]
+            # path = directory + os.path.normpath(http_path)
+            path = directory + http_path
+            # http_path_list = http_path.split('/')
+            # print("HTTP_PATH_LIST", http_path_list)
+            # print("File extension", "." + http_path_list[len(http_path_list)-1].split('.')[1])
+            # file_extension = os.path.splitext(http_path)[1]
+            
+            print("Path", path)
+            is_file = False
+            is_directory = False
 
-            if (os.path.isfile(path)): # If this is true then it is a file
+            # Normalize path:
+            print("Normalize path", norm_path(path))
+            path = norm_path(path)
+            
+            try:
+                with open(path, "rb") as file:
+                    is_file = True
+            except FileNotFoundError:
+                is_file = False
+            except IsADirectoryError:
+                is_directory = True
 
+            if (is_file): # If this is true then it is a file
+                print("FILE FOUND")
                 with open(path, "rb") as file:
                     response_data = file.read()
+                
+                http_path_list = http_path.split('/')
+                # print("HTTP_PATH_LIST", http_path_list)
+                # print("File extension", "." + http_path_list[len(http_path_list)-1].split('.')[1])
+                # file_extension = os.path.splitext(http_path)[1]
+                file_extension = "." + http_path_list[len(http_path_list)-1].split('.')[1]
                 
                 status_code = b"HTTP/1.1 200 OK\r\n"
                 mime_type = mimes_dict[file_extension]
@@ -77,19 +104,28 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 response = status_code + close_conn + (content_type).encode('utf-8') + response_data
                 self.request.sendall(response)
             
-            elif(os.path.isdir(path)): # If this is true then it is a directory
-                files_in_dir_list = os.listdir(path)
+            elif(is_directory): # If this is true then it is a directory
+                # files_in_dir_list = os.listdir(path)
 
                 if(http_path.endswith("/")): # re add the back slash incase the actual path had it because normalizing path gets rid of it
                     path = path + "/"
 
-                if path.endswith("/"): # Double check if this is a good way to do it.
+                if http_path.endswith("/"): # Double check if this is a good way to do it.
+                    print("Directory Found, File Found")
+                    if_index = False
 
-                    if ('index.html' in files_in_dir_list):
+                    path = path + 'index.html'
+                    
+                    try:
+                        with open(path, 'rb') as file:
+                            if_index = True
+                    except FileNotFoundError:
+                        if_index = False
 
-                        new_file_path = path + '/index.html'
+                    if (if_index == True):
+                        # new_file_path = path + '/index.html'
 
-                        with open(new_file_path, "rb") as file:
+                        with open(path, "rb") as file:
                             response_data = file.read()
 
                         status_code = b"HTTP/1.1 200 OK\r\n"
@@ -99,13 +135,16 @@ class MyWebServer(socketserver.BaseRequestHandler):
                         response = status_code + close_conn + (content_type).encode('utf-8') + response_data 
                         self.request.sendall(response)
                             
-                    if ('index.html' not in files_in_dir_list):
+                    if (if_index == False):
+                        print("Directory Found, File not found")
                         status_code = b"HTTP/1.1 404 Not FOUND!\r\n"
                         self.request.sendall(status_code)
 
-                elif (not path.endswith("/")):
+                elif (not http_path.endswith("/")):
+                    print("REDIRECTING")
+                    # fixed_path = path + "/"
                     fixed_path = http_path + "/"
-
+                    print(fixed_path)
                     status_code = b"HTTP/1.1 301 Moved Permanently\r\n"
                     location = "Location: " + fixed_path + "\r\n"
 
@@ -116,6 +155,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
 
             else: # 404 Error
+                print("File not found")
                 error404 = directory + "/404.html"
                 with open(error404, "rb") as file:
                     response_data = file.read()
@@ -139,6 +179,20 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(response)
             
 
+def norm_path(path):
+    path_parts = path.split('/')
+    path_items = []
+
+    for part in path_parts:
+        if part == '..':
+            # Do nothing
+            pass
+        elif (part != '') and part != '.':
+            path_items.append(part)
+    # print(path)
+    normalized_path = '/'.join(path_items)
+
+    return normalized_path
     
 
 if __name__ == "__main__":
